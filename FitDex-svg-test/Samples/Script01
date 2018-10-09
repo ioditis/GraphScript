@@ -1,6 +1,4 @@
 ﻿
-
-
 Ax = 100 ; Ay=100;
 
 pA = new Point( Ax, Ay);
