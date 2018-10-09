@@ -1,0 +1,205 @@
+﻿// IronMeta Copyright © Gordon Tisher 2018
+
+using System;
+using System.Linq;
+using System.Collections.Generic;
+
+using IronMeta.Matcher;
+using Elements;
+
+// This grammar is far more complicated than 
+// it needs to be, in order to demonstrate
+// the features of the IronMeta system.
+
+
+// some new comments
+ironmeta FitDex<char, string> : Matcher<char, string>
+{
+    
+		
+	Script = NL* (Space* Statement Space* EOL)*;
+
+	EOL =  ';' ( Space | NL )* ;
+	NL = ('\r' | '\n');
+
+	Statement = VarDefinition;
+	
+	VarDefinition = ClassVariable | SimpleVariable | ObjectAttribute;
+
+	SimpleVariable = Variable:v Space* Eq Space* ExpressionNumeric+:d -> { 
+
+			string vName = string.Concat( v.Inputs );
+			string value = string.Concat( d.Results );
+
+			if (Elements.Graphics.Variables.ContainsKey( vName )) {
+				Elements.Graphics.Variables[vName].value = value;
+			} 
+			else
+			{
+				Elements.Graphics.Variables.Add( 
+					vName, 
+					new Elements.Variable( vName, Elements.Variable.VarType.VAR_TYPE_SIMPLE, value )
+					);
+			}
+
+			return "OK";
+		};
+
+	ClassVariable = Variable:v NewClass ClassName:c ParameterStart Space* (Parameters){0,1}:p Space* ParameterEnd -> {
+
+			string cName = string.Concat( c.Inputs );
+			string vName = string.Concat( v.Inputs );
+
+			switch (cName)
+			{
+				case "Point":
+					Elements.Graphics.AddPoint( vName, string.Concat(p.Results) );
+					break;
+				case "Line":
+					Elements.Graphics.AddLine( vName, string.Concat(p.Results) );
+					break;
+			}
+			return "OK";
+		};
+
+
+	ClassVariable = Variable:v Eq ClassName:c '.' Function:f ParameterStart Space* (Parameters){0,1}:p Space* ParameterEnd -> {
+
+			string vName = string.Concat( v.Inputs );
+			string cName = string.Concat( c.Inputs );
+			string fName = string.Concat( f.Inputs );
+
+			Console.WriteLine( string.Format("Function call: {0} = {1}.{2}", vName, cName, fName) );
+
+			Elements.Graphics.Call( vName, cName, fName, string.Concat(p.Results ) );
+
+			return "OK";
+		};
+
+
+
+	ObjectAttribute = Variable:v '.' Attribute:a Eq ExpressionNumeric:d -> {
+
+			Elements.Graphics.SetProperty(
+				string.Concat( v.Inputs ),
+				string.Concat( a.Inputs ),
+				string.Concat( d.Results )
+			);
+
+			return "OK";
+		};
+
+	Variable = ObjectName;
+	ClassName = ObjectName;
+	Attribute = ObjectName;
+	Function = ObjectName;
+
+	Parameters = (
+				Param:p Comma Parameters:ps -> { return p + "," + ps ; }
+				| Param:p -> { return p; }
+				);
+	Param = Variable:v -> {return string.Concat( v.Inputs ); }
+			| (Digit | ExpressionNumeric){1,6}:d -> {return string.Concat( d.Inputs )+"(d)"; } ;
+
+	ObjectName = Letter (Digit| Letter){0,50};
+
+	NewClass = Space* Eq Space* "new " Space*;
+
+	// arithmetic operations
+	ExpressionNumeric = (Multi | Add | ClassAttributeValue | VariableValue | Digits) -> { return string.Concat( _IM_Result.Results ); } ;
+	ExpressionNumeric = '(' Space* ExpressionNumeric Space* ')';
+
+	Add = (ExpressionNumeric:a Space* '+' Space* ExpressionNumeric:b )-> { 
+			Console.WriteLine( string.Format("Add: {0} + {1}", string.Concat( a.Results ), string.Concat( b.Results ) ));
+			return (Int32.Parse(string.Concat( a.Results )) + Int32.Parse(string.Concat( b.Results ))).ToString(); 
+		}
+		| (ExpressionNumeric:a Space* '-' Space* ExpressionNumeric:b )-> { 
+			Console.WriteLine( string.Format("Minus: {0} - {1}", string.Concat( a.Results ), string.Concat( b.Results ) ));
+			return (Int32.Parse(string.Concat( a.Results )) - Int32.Parse(string.Concat( b.Results ))).ToString(); 
+		}
+		;
+
+	Multi = (ExpressionNumeric:a Space* '/' Space* ExpressionNumeric:b )-> { 
+			Console.WriteLine( string.Format("Divide: {0} / {1}", string.Concat( a.Results ), string.Concat( b.Results ) ));
+			return (Int32.Parse(string.Concat( a.Results )) / Int32.Parse(string.Concat( b.Results ))).ToString(); 
+		} 
+		| (ExpressionNumeric:a Space* '*' Space* ExpressionNumeric:b )-> { 
+			Console.WriteLine( string.Format("Multiply: {0} x {1}", string.Concat( a.Results ), string.Concat( b.Results ) ));
+			return (Int32.Parse(string.Concat( a.Results )) * Int32.Parse(string.Concat( b.Results ))).ToString(); 
+		} 
+		;
+
+	ClassAttributeValue = ClassName:c '.' Attribute:a -> { 
+			return Elements.Graphics.GetProperty (
+				string.Concat( c.Inputs ),
+				string.Concat( a.Inputs )
+			);
+		} ;
+
+	VariableValue = Variable:v -> { 
+			return Elements.Graphics.Variables[string.Concat( v.Inputs )].value;
+		} ;
+
+
+	/*
+	ExpressionNumeric = Add | Sub | Multiplicative -> { return string.Concat( _IM_Result.Results ); } ;
+
+    Add = BinaryOp(ExpressionNumeric, '+', Multiplicative) -> { return _IM_Result.Results.Aggregate((total, n) => (Int32.Parse(total == null ? "0" : total) + Int32.Parse(n)).ToString() ); };
+    Sub = BinaryOp(ExpressionNumeric, '-', Multiplicative) -> { return _IM_Result.Results.Aggregate((total, n) => (Int32.Parse(total == null ? "0" : total) - Int32.Parse(n)).ToString() ); };
+
+    Multiplicative = Multiply | Divide;
+    Multiplicative = Number(DecimalDigit);
+
+    Multiply = BinaryOp(Multiplicative, "*", Number, DecimalDigit) -> { return _IM_Result.Results.Aggregate((p, n) => (Int32.Parse(p) * Int32.Parse(n)).ToString() ); };
+    Divide = BinaryOp(Multiplicative, "/", Number, DecimalDigit) -> { return _IM_Result.Results.Aggregate((q, n) => (Int32.Parse(q) / Int32.Parse(n)).ToString() ); };
+
+    BinaryOp :first :op :second .?:type = first:a KW(op) second(type):b -> { return new List<string> { a, b }; };
+
+    Number :type = Digits(type):n WS* -> { return n; };
+
+    Digits :type = Digits(type):a type:b -> { return (Int32.Parse(a)*10 + Int32.Parse(b)).ToString(); };
+    Digits :type = type;
+
+    DecimalDigit = .:c ?( (char)c >= '0' && (char)c <= '9' ) -> { return ((char)c - '0').ToString(); };
+    KW :str = str WS*;
+    WS = ' ' | '\n' | '\r' | '\t';
+	*/
+
+
+	// simple types
+
+	ParameterStart = '(';
+	ParameterEnd = ')';
+
+	Comma = Space* ',' Space* ;
+	Eq = Space* '=' Space*;
+	Space = ' ';
+
+	Digits = Digit+:d -> {
+		return string.Concat( d.Inputs ); 
+		};
+	Letter = ['a'-'z' 'A'-'Z' '-' '_'];
+	Digit = ['0'-'9'];	
+
+	/*
+	Statement = (~Eml . | Eml)*;
+
+	Eml = Local:a At:b NewClass DomainText+:c Suffix:d -> { return string.Format("Local:{0} At:{1} Domain:{2} Suffix:{3}", a, b, c ,d); };
+
+	Local = (Digit| Letter){1,50} (Conj (Digit| Letter)+){0,8};
+
+	Suffix = (".com" |".org" | ".ca" | ".net" |" .biz" | ".edu" | ".info" | ".uk"
+	| ".au" | ".co.uk");
+
+	DomainText = ( Digit| Letter ){1,50} (~Suffix Conj ( Digit| Letter  )+){0,8};
+
+	Conj = ('.' | '-' | '_');
+
+	At = '=';
+	NewClass = "new";
+
+	Letter = ['a'-'z' 'A'-'Z' '-' '_'];
+	Digit = ['0'-'9'];	
+	*/
+
+}

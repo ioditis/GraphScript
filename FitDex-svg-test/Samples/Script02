@@ -1,0 +1,20 @@
+﻿kvadrataMala = 50;
+kvadrataMala2 = kvadrataMala/2;
+
+
+pA = new Point(0,0);
+pB = pA.Right( kvadrataMala );
+pC = pB.Down( kvadrataMala );
+pD = pC.Left( kvadrataMala );
+pE = pA.Right( kvadrataMala2 );
+
+kvAB= new Line(pA, pB);
+kvBC= new Line(pB, pC);
+kvCD= new Line(pC, pD);
+kvDA= new Line(pD, pA);
+
+trijstEC = new Line(pE, pC);
+trijstCD = new Line(pC, pD);
+trijstDE = new Line(pD, pE);
+
+
