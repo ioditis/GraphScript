@@ -19,8 +19,8 @@ ironmeta FitDex<char, string> : Matcher<char, string>
 		
 	Script = NL* (Space* Statement Space* EOL)*;
 
-	EOL =  ';' ( Space | NL )* ;
-	NL = ('\r' | '\n');
+	EOL =  (NL)* ;
+	NL = ('\r' | ('\n') -> { Interpreter.LineNext(); return "OK"; } );
 
 	Statement = VarDefinition;
 	
@@ -28,37 +28,21 @@ ironmeta FitDex<char, string> : Matcher<char, string>
 
 	SimpleVariable = Variable:v Space* Eq Space* ExpressionNumeric+:d -> { 
 
-			string vName = string.Concat( v.Inputs );
-			string value = string.Concat( d.Results );
+			string vName = string.Concat( v.Inputs );	// variable name
+			string value = string.Concat( d.Results );	// variable value
 
-			if (Elements.Graphics.Variables.ContainsKey( vName )) {
-				Elements.Graphics.Variables[vName].value = value;
-			} 
-			else
-			{
-				Elements.Graphics.Variables.Add( 
-					vName, 
-					new Elements.Variable( vName, Elements.Variable.VarType.VAR_TYPE_SIMPLE, value )
-					);
-			}
-
+			Elements.Graphics.SetVariable( vName, Elements.Variable.VarType.VAR_TYPE_SIMPLE, value );
 			return "OK";
 		};
 
+
 	ClassVariable = Variable:v NewClass ClassName:c ParameterStart Space* (Parameters){0,1}:p Space* ParameterEnd -> {
 
-			string cName = string.Concat( c.Inputs );
-			string vName = string.Concat( v.Inputs );
+			string cName = string.Concat( c.Inputs ); // class name
+			string vName = string.Concat( v.Inputs ); // object name
+			string paramList = string.Concat(p.Results);	// parameters for class constructor
 
-			switch (cName)
-			{
-				case "Point":
-					Elements.Graphics.AddPoint( vName, string.Concat(p.Results) );
-					break;
-				case "Line":
-					Elements.Graphics.AddLine( vName, string.Concat(p.Results) );
-					break;
-			}
+			Elements.Graphics.NewObject( cName, vName, paramList);
 			return "OK";
 		};
 
@@ -69,10 +53,7 @@ ironmeta FitDex<char, string> : Matcher<char, string>
 			string cName = string.Concat( c.Inputs );
 			string fName = string.Concat( f.Inputs );
 
-			Console.WriteLine( string.Format("Function call: {0} = {1}.{2}", vName, cName, fName) );
-
 			Elements.Graphics.Call( vName, cName, fName, string.Concat(p.Results ) );
-
 			return "OK";
 		};
 
@@ -103,7 +84,7 @@ ironmeta FitDex<char, string> : Matcher<char, string>
 
 	ObjectName = Letter (Digit| Letter){0,50};
 
-	NewClass = Space* Eq Space* "new " Space*;
+	NewClass = Space* Eq Space*;
 
 	// arithmetic operations
 	ExpressionNumeric = (Multi | Add | ClassAttributeValue | VariableValue | Digits) -> { return string.Concat( _IM_Result.Results ); } ;
@@ -137,7 +118,7 @@ ironmeta FitDex<char, string> : Matcher<char, string>
 		} ;
 
 	VariableValue = Variable:v -> { 
-			return Elements.Graphics.Variables[string.Concat( v.Inputs )].value;
+			return Elements.Graphics.GetVariable( string.Concat( v.Inputs ) ).value;
 		} ;
 
 

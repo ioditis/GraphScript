@@ -1,31 +1,37 @@
 ﻿
-Ax = 100 ; Ay=100;
+Ax = 100
+Ay=100
 
-pA = new Point( Ax, Ay);
-pB = new Point( 100, 200);
-pC = new Point( 200, 200);
+pA = Point( Ax, Ay)
+pB = Point( 100, 200)
+pC = Point( 200, 200)
 
-L_AB = new Line( pA, pB);
-L_BC = new Line( pB, pC);
-L_CA = new Line( pC, pA);
+L_AB = Line( pA, pB)
+L_BC = Line( pB, pC)
+L_CA = Line( pC, pA)
 
-width = 300 - (10 /2)*20; height = 100;
+width = 300 - (10 /2)*20
+height = 100
 
-Xx = 150 ;        Xy = 150;
-Yx = Xx ;         Yy = Xy + height;
-Zx = Xx + width ; Zy = Xy + height;
-Wx = Xx + width ; Wy = Xy ;
+Xx = 150         
+Xy = 150
+Yx = Xx          
+Yy = Xy + height
+Zx = Xx + width  
+Zy = Xy + height
+Wx = Xx + width  
+Wy = Xy 
 
-pX = new Point( Xx, Xy);
-pY = pX.down( height );
+pX = Point( Xx, Xy)
+pY = pX.down( height )
 
-pZ = new Point( Zx, Zy);
-pW = new Point( Wx, Wy);
+pZ = Point( Zx, Zy)
+pW = Point( Wx, Wy)
 
-L_XY = new Line( pX, pY);
-L_YZ = new Line( pY, pZ);
-L_ZW = new Line( pZ, pW);
-L_WX = new Line( pW, pX);
+L_XY = Line( pX, pY)
+L_YZ = Line( pY, pZ)
+L_ZW = Line( pZ, pW)
+L_WX = Line( pW, pX)
 
-L_XZ_diagonale = new Line( pX, pZ);
-L_YW_diagonale = new Line( pY, pW);
+L_XZ_diagonale = Line( pX, pZ)
+L_YW_diagonale = Line( pY, pW)

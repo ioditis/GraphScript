@@ -17,23 +17,18 @@ namespace FitDex_svg_test
 
             string fileScript = args[0];
             string fileSvg = args[1];
+            int breakpoint = -1;            // break point line set to none
+
+            if (args.Length > 2)
+            {
+                if (args[2].Substring(0, 11).ToUpper() == "BREAKPOINT=") {
+                    breakpoint = int.Parse( args[2].Substring(11));
+                }
+            }
 
             string input = (new System.IO.StreamReader(fileScript)).ReadToEnd();
-            /*
-            string input = "Ax = 100 ; Ay=100;" + Environment.NewLine + "  "
-                    + Environment.NewLine + " pA = new Point( Ax, Ay);"
-                    + Environment.NewLine + " pB = new Point( 100, 200);"
-                    + Environment.NewLine + " pC = new Point( 200, 200);"
-                    + Environment.NewLine + " L_AB = new Line( pA, pB);"
-                    + Environment.NewLine + " L_BC = new Line( pB, pC);"
-                    + Environment.NewLine + " L_CA = new Line( pC, pA);"
-                    + Environment.NewLine + " Ax = 50;"
-                    + Environment.NewLine + ""
-                    + Environment.NewLine + " simple    =12345;";
-               */
-            // string input = "v1 = new FgT() ;\n\r;  v2 = new kuku();";
 
-            Console.WriteLine(": ");
+            Interpreter.BreakpointLine = breakpoint;
 
             var matcher = new FitDex(); //new Calc();
             var result = matcher.GetMatch(input, matcher.Script);
@@ -46,6 +41,7 @@ namespace FitDex_svg_test
             else
             {
                 Console.WriteLine("Error: " + result.Error);
+                Console.WriteLine( string.Format( "Error line: {0}", Interpreter.LineCurrent+1));
             }
             Console.Write("Press enter to quit");
             Console.ReadLine();
