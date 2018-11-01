@@ -6,9 +6,9 @@ pA = Point( Ax, Ay)
 pB = Point( 100, 200)
 pC = Point( 200, 200)
 
-L_AB = Line( pA, pB)
-L_BC = Line( pB, pC)
-L_CA = Line( pC, pA)
+L_AB = Straight( pA, pB, sTechnical)
+L_BC = Straight( pB, pC, sTechnical)
+L_CA = Straight( pC, pA, sTechnical)
 
 width = 300 - (10 /2)*20
 height = 100
@@ -28,10 +28,10 @@ pY = pX.down( height )
 pZ = Point( Zx, Zy)
 pW = Point( Wx, Wy)
 
-L_XY = Line( pX, pY)
-L_YZ = Line( pY, pZ)
-L_ZW = Line( pZ, pW)
-L_WX = Line( pW, pX)
+L_XY = Straight( pX, pY, sSeamWide)
+L_YZ = Straight( pY, pZ, sSeamWide)
+L_ZW = Straight( pZ, pW, sSeamWide)
+L_WX = Straight( pW, pX, sSeamWide)
 
-L_XZ_diagonale = Line( pX, pZ)
-L_YW_diagonale = Line( pY, pW)
+L_XZ_diagonale = Straight( pX, pZ, sSeamWide)
+L_YW_diagonale = Straight( pY, pW, sSeamWide)

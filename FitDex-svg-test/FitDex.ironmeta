@@ -59,16 +59,18 @@ ironmeta FitDex<char, string> : Matcher<char, string>
 
 
 
-	ObjectAttribute = Variable:v '.' Attribute:a Eq ExpressionNumeric:d -> {
+	ObjectAttribute = 
+		(Variable:v '.' Attribute:a Eq ObjectName:d ) -> {
+					Elements.Graphics.SetProperty( string.Concat( v.Inputs ), string.Concat( a.Inputs ),  string.Concat( d.Inputs ) );
+					return "OK";
+				}
+		|
+		(Variable:v '.' Attribute:a Eq ExpressionNumeric:d ) -> {
+					Elements.Graphics.SetProperty( string.Concat( v.Inputs ), string.Concat( a.Inputs ),  string.Concat( d.Results ) );
+					return "OK";
+				}
+		;
 
-			Elements.Graphics.SetProperty(
-				string.Concat( v.Inputs ),
-				string.Concat( a.Inputs ),
-				string.Concat( d.Results )
-			);
-
-			return "OK";
-		};
 
 	Variable = ObjectName;
 	ClassName = ObjectName;

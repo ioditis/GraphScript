@@ -1,0 +1,33 @@
+﻿
+width = 300 - (10 /2)*20
+height = 100
+
+Xx = 150
+Xy = 150
+Yx = Xx
+Yy = Xy + height
+Zx = Xx + width
+Zy = Xy + height
+Wx = Xx + width
+Wy = Xy
+
+pX = Point( Xx, Xy)
+pY = pX.down( height )
+
+pZ = Point( Zx, Zy)
+pW = Point( Wx, Wy)
+
+L_XY = Straight( pX, pY, sSimple)
+L_YZ = Straight( pY, pZ, sSimple)
+L_ZW = Straight( pZ, pW, sSimple)
+L_WX = Straight( pW, pX, sSimple)
+
+Wx = Wx - 100
+Wy = Wy + 20
+
+L_XZ_diagonale = Straight( pX, pZ, sTechnical)
+L_YW_diagonale = Straight( pY, pW, sTechnical)
+
+pCross = L_XZ_diagonale.GetCrossPoint(L_YW_diagonale)
+pCross.Visible = True
+pCross.Type = pSimple

@@ -1,5 +1,5 @@
 ﻿//
-// IronMeta FitDex Parser; Generated 2018-10-23 17:20:09Z UTC
+// IronMeta FitDex Parser; Generated 2018-10-31 15:56:11Z UTC
 //
 
 using System;
@@ -1181,8 +1181,8 @@ namespace FitDex_svg_test
             _FitDex_Item a = null;
             _FitDex_Item d = null;
 
-            // AND 1
-            int _start_i1 = _index;
+            // OR 0
+            int _start_i0 = _index;
 
             // AND 2
             int _start_i2 = _index;
@@ -1193,21 +1193,51 @@ namespace FitDex_svg_test
             // AND 4
             int _start_i4 = _index;
 
+            // AND 5
+            int _start_i5 = _index;
+
             // CALLORVAR Variable
-            _FitDex_Item _r6;
+            _FitDex_Item _r7;
 
-            _r6 = _MemoCall(_memo, "Variable", _index, Variable, null);
+            _r7 = _MemoCall(_memo, "Variable", _index, Variable, null);
 
-            if (_r6 != null) _index = _r6.NextIndex;
+            if (_r7 != null) _index = _r7.NextIndex;
 
             // BIND v
             v = _memo.Results.Peek();
 
             // AND shortcut
-            if (_memo.Results.Peek() == null) { _memo.Results.Push(null); goto label4; }
+            if (_memo.Results.Peek() == null) { _memo.Results.Push(null); goto label5; }
 
             // LITERAL '.'
             _ParseLiteralChar(_memo, ref _index, '.');
+
+        label5: // AND
+            var _r5_2 = _memo.Results.Pop();
+            var _r5_1 = _memo.Results.Pop();
+
+            if (_r5_1 != null && _r5_2 != null)
+            {
+                _memo.Results.Push( new _FitDex_Item(_start_i5, _index, _memo.InputEnumerable, _r5_1.Results.Concat(_r5_2.Results).Where(_NON_NULL), true) );
+            }
+            else
+            {
+                _memo.Results.Push(null);
+                _index = _start_i5;
+            }
+
+            // AND shortcut
+            if (_memo.Results.Peek() == null) { _memo.Results.Push(null); goto label4; }
+
+            // CALLORVAR Attribute
+            _FitDex_Item _r10;
+
+            _r10 = _MemoCall(_memo, "Attribute", _index, Attribute, null);
+
+            if (_r10 != null) _index = _r10.NextIndex;
+
+            // BIND a
+            a = _memo.Results.Peek();
 
         label4: // AND
             var _r4_2 = _memo.Results.Pop();
@@ -1226,15 +1256,12 @@ namespace FitDex_svg_test
             // AND shortcut
             if (_memo.Results.Peek() == null) { _memo.Results.Push(null); goto label3; }
 
-            // CALLORVAR Attribute
-            _FitDex_Item _r9;
+            // CALLORVAR Eq
+            _FitDex_Item _r11;
 
-            _r9 = _MemoCall(_memo, "Attribute", _index, Attribute, null);
+            _r11 = _MemoCall(_memo, "Eq", _index, Eq, null);
 
-            if (_r9 != null) _index = _r9.NextIndex;
-
-            // BIND a
-            a = _memo.Results.Peek();
+            if (_r11 != null) _index = _r11.NextIndex;
 
         label3: // AND
             var _r3_2 = _memo.Results.Pop();
@@ -1253,12 +1280,15 @@ namespace FitDex_svg_test
             // AND shortcut
             if (_memo.Results.Peek() == null) { _memo.Results.Push(null); goto label2; }
 
-            // CALLORVAR Eq
-            _FitDex_Item _r10;
+            // CALLORVAR ObjectName
+            _FitDex_Item _r13;
 
-            _r10 = _MemoCall(_memo, "Eq", _index, Eq, null);
+            _r13 = _MemoCall(_memo, "ObjectName", _index, ObjectName, null);
 
-            if (_r10 != null) _index = _r10.NextIndex;
+            if (_r13 != null) _index = _r13.NextIndex;
+
+            // BIND d
+            d = _memo.Results.Peek();
 
         label2: // AND
             var _r2_2 = _memo.Results.Pop();
@@ -1274,46 +1304,149 @@ namespace FitDex_svg_test
                 _index = _start_i2;
             }
 
-            // AND shortcut
-            if (_memo.Results.Peek() == null) { _memo.Results.Push(null); goto label1; }
-
-            // CALLORVAR ExpressionNumeric
-            _FitDex_Item _r12;
-
-            _r12 = _MemoCall(_memo, "ExpressionNumeric", _index, ExpressionNumeric, null);
-
-            if (_r12 != null) _index = _r12.NextIndex;
-
-            // BIND d
-            d = _memo.Results.Peek();
-
-        label1: // AND
-            var _r1_2 = _memo.Results.Pop();
-            var _r1_1 = _memo.Results.Pop();
-
-            if (_r1_1 != null && _r1_2 != null)
+            // ACT
+            var _r1 = _memo.Results.Peek();
+            if (_r1 != null)
             {
-                _memo.Results.Push( new _FitDex_Item(_start_i1, _index, _memo.InputEnumerable, _r1_1.Results.Concat(_r1_2.Results).Where(_NON_NULL), true) );
+                _memo.Results.Pop();
+                _memo.Results.Push( new _FitDex_Item(_r1.StartIndex, _r1.NextIndex, _memo.InputEnumerable, _Thunk(_IM_Result => { Elements.Graphics.SetProperty( string.Concat( v.Inputs ), string.Concat( a.Inputs ),  string.Concat( d.Inputs ) );
+                    return "OK"; }, _r1), true) );
+            }
+
+            // OR shortcut
+            if (_memo.Results.Peek() == null) { _memo.Results.Pop(); _index = _start_i0; } else goto label0;
+
+            // AND 15
+            int _start_i15 = _index;
+
+            // AND 16
+            int _start_i16 = _index;
+
+            // AND 17
+            int _start_i17 = _index;
+
+            // AND 18
+            int _start_i18 = _index;
+
+            // CALLORVAR Variable
+            _FitDex_Item _r20;
+
+            _r20 = _MemoCall(_memo, "Variable", _index, Variable, null);
+
+            if (_r20 != null) _index = _r20.NextIndex;
+
+            // BIND v
+            v = _memo.Results.Peek();
+
+            // AND shortcut
+            if (_memo.Results.Peek() == null) { _memo.Results.Push(null); goto label18; }
+
+            // LITERAL '.'
+            _ParseLiteralChar(_memo, ref _index, '.');
+
+        label18: // AND
+            var _r18_2 = _memo.Results.Pop();
+            var _r18_1 = _memo.Results.Pop();
+
+            if (_r18_1 != null && _r18_2 != null)
+            {
+                _memo.Results.Push( new _FitDex_Item(_start_i18, _index, _memo.InputEnumerable, _r18_1.Results.Concat(_r18_2.Results).Where(_NON_NULL), true) );
             }
             else
             {
                 _memo.Results.Push(null);
-                _index = _start_i1;
+                _index = _start_i18;
+            }
+
+            // AND shortcut
+            if (_memo.Results.Peek() == null) { _memo.Results.Push(null); goto label17; }
+
+            // CALLORVAR Attribute
+            _FitDex_Item _r23;
+
+            _r23 = _MemoCall(_memo, "Attribute", _index, Attribute, null);
+
+            if (_r23 != null) _index = _r23.NextIndex;
+
+            // BIND a
+            a = _memo.Results.Peek();
+
+        label17: // AND
+            var _r17_2 = _memo.Results.Pop();
+            var _r17_1 = _memo.Results.Pop();
+
+            if (_r17_1 != null && _r17_2 != null)
+            {
+                _memo.Results.Push( new _FitDex_Item(_start_i17, _index, _memo.InputEnumerable, _r17_1.Results.Concat(_r17_2.Results).Where(_NON_NULL), true) );
+            }
+            else
+            {
+                _memo.Results.Push(null);
+                _index = _start_i17;
+            }
+
+            // AND shortcut
+            if (_memo.Results.Peek() == null) { _memo.Results.Push(null); goto label16; }
+
+            // CALLORVAR Eq
+            _FitDex_Item _r24;
+
+            _r24 = _MemoCall(_memo, "Eq", _index, Eq, null);
+
+            if (_r24 != null) _index = _r24.NextIndex;
+
+        label16: // AND
+            var _r16_2 = _memo.Results.Pop();
+            var _r16_1 = _memo.Results.Pop();
+
+            if (_r16_1 != null && _r16_2 != null)
+            {
+                _memo.Results.Push( new _FitDex_Item(_start_i16, _index, _memo.InputEnumerable, _r16_1.Results.Concat(_r16_2.Results).Where(_NON_NULL), true) );
+            }
+            else
+            {
+                _memo.Results.Push(null);
+                _index = _start_i16;
+            }
+
+            // AND shortcut
+            if (_memo.Results.Peek() == null) { _memo.Results.Push(null); goto label15; }
+
+            // CALLORVAR ExpressionNumeric
+            _FitDex_Item _r26;
+
+            _r26 = _MemoCall(_memo, "ExpressionNumeric", _index, ExpressionNumeric, null);
+
+            if (_r26 != null) _index = _r26.NextIndex;
+
+            // BIND d
+            d = _memo.Results.Peek();
+
+        label15: // AND
+            var _r15_2 = _memo.Results.Pop();
+            var _r15_1 = _memo.Results.Pop();
+
+            if (_r15_1 != null && _r15_2 != null)
+            {
+                _memo.Results.Push( new _FitDex_Item(_start_i15, _index, _memo.InputEnumerable, _r15_1.Results.Concat(_r15_2.Results).Where(_NON_NULL), true) );
+            }
+            else
+            {
+                _memo.Results.Push(null);
+                _index = _start_i15;
             }
 
             // ACT
-            var _r0 = _memo.Results.Peek();
-            if (_r0 != null)
+            var _r14 = _memo.Results.Peek();
+            if (_r14 != null)
             {
                 _memo.Results.Pop();
-                _memo.Results.Push( new _FitDex_Item(_r0.StartIndex, _r0.NextIndex, _memo.InputEnumerable, _Thunk(_IM_Result => { Elements.Graphics.SetProperty(
-                string.Concat( v.Inputs ),
-                string.Concat( a.Inputs ),
-                string.Concat( d.Results )
-            );
-
-            return "OK"; }, _r0), true) );
+                _memo.Results.Push( new _FitDex_Item(_r14.StartIndex, _r14.NextIndex, _memo.InputEnumerable, _Thunk(_IM_Result => { Elements.Graphics.SetProperty( string.Concat( v.Inputs ), string.Concat( a.Inputs ),  string.Concat( d.Results ) );
+                    return "OK"; }, _r14), true) );
             }
+
+        label0: // OR
+            int _dummy_i0 = _index; // no-op for label
 
         }
 

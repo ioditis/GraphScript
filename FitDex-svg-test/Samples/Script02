@@ -1,20 +1,33 @@
-﻿kvadrataMala = 50
+﻿kvadrataMala = 100
 kvadrataMala2 = kvadrataMala/2
 
 pA = Point( 10, 10 )
 
-pB = pA.Right( kvadrataMala )
+pB = pA.Right( kvadrataMala  )
 pC = pB.Down( kvadrataMala )
 pD = pC.Left( kvadrataMala )
 pE = pA.Right( kvadrataMala2 )
 
-kvAB= Line(pA, pB)
-kvBC= Line(pB, pC)
-kvCD= Line(pC, pD)
-kvDA= Line(pD, pA)
+kvAB= Straight(pA, pB, sSeamWide)
+kvBC= Straight(pB, pC, sSeamWide)
+kvCD= Straight(pC, pD, sSeamWide)
+kvDA= Straight(pD, pA, sSeamWide)
 
-trijstEC = Line(pE, pC)
-trijstCD = Line(pC, pD)
-trijstDE = Line(pD, pE)
+trijstEC = Straight(pE, pC, sTechnical)
+trijstCD = Straight(pC, pD, sTechnical)
+trijstDE = Straight(pD, pE, sTechnical)
+
+pCol1 = Point( 10, 10, pSimple )
+pCol2 = Point( 10, 60, pComplex )
+pCol1.Type = pComplex
+
+pE.Type = pSimple
+pE.Visible = TRUE
+
+pB.X = 150
+
+
+trijstDE.Visible = TRUE
+trijstDE.Type = sSeamWide
 
 

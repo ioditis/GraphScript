@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<styles>
+  <style type="line" name="sTechnical">
+    <color>FFFF0000</color> <!-- red -->
+    <weight>2</weight>
+    <opacity>1</opacity>
+    <dashed></dashed>
+  </style>
+  <style type="point" name="pSimple"></style>
+</styles>

@@ -13,11 +13,13 @@ namespace Elements
         public static Dictionary<string, Variable> Variables = new Dictionary<string, Variable>();
         public static Dictionary<string, Point> Points = new Dictionary<string, Point>();
         public static Dictionary<string, Line> Lines = new Dictionary<string, Line>();
+        public static Dictionary<string, LineType> LineTypes = new Dictionary<string, LineType>();
+        public static Dictionary<string, PointType> PointTypes = new Dictionary<string, PointType>();
 
 
         // class names
         const string CLASS_POINT = "Point";
-        const string CLASS_LINE = "Line";
+        const string CLASS_LINE = "Straight";
 
 
         public enum Direction {
@@ -46,14 +48,15 @@ namespace Elements
         {
             if (Interpreter.IsBreakpoint) { return null; }
 
-            if (!Graphics.Variables.ContainsKey(pName))
+            string name = pName.Trim();
+            if (!Graphics.Variables.ContainsKey( name ))
             {
                 Interpreter.AddError(string.Format("Variable [{0}] does not exists", pName));
                 return null;
             }
             else
             {
-                return Graphics.Variables[pName];
+                return Graphics.Variables[name];
             }
         }
 
@@ -152,6 +155,39 @@ namespace Elements
         }
 
 
+
+
+
+
+        /// <summary>
+        /// gets line by name
+        /// </summary>
+        /// <created>
+        ///  <author>DIVI Group</author>
+        ///  <date>2018.10.31</date>
+        /// </created>
+        /// <param name="pName"></param>
+        /// <returns></returns>
+        public static Line GetLine(string pName)
+        {
+
+            if (Interpreter.IsBreakpoint) { return null; }
+
+            // rise error if variable does not exists
+            if (!Graphics.Lines.ContainsKey(pName))
+            {
+                Interpreter.AddError(string.Format("Line with name [{0}] does not exists", pName));
+                return null;
+            }
+            else
+            {
+                return Graphics.Lines[pName];
+            }
+
+        }
+
+
+
         #endregion Properties
 
 
@@ -196,7 +232,7 @@ namespace Elements
                             }
                         default:
                             {
-                                Interpreter.AddError(string.Format("Class of type [{0}] cannot be created.", pClass));
+                                Interpreter.AddError(string.Format("Object of type [{0}] cannot be created.", pClass));
                                 break;
                             }
                     }
@@ -217,7 +253,7 @@ namespace Elements
         /// </created>
         /// <param name="parameters"></param>
         /// <returns></returns>
-        private static void NewPoint(string pName, string pParameters) {
+        public static void NewPoint(string pName, string pParameters) {
 
             Console.WriteLine(  string.Format("Add Point: {0}, [{1}]", pName, pParameters) );
 
@@ -228,6 +264,22 @@ namespace Elements
             if (Graphics.Variables.ContainsKey(pName)) {
                 Interpreter.AddError(string.Format("Variable [{0}] alreadey exists", pName  ) );
             }
+
+            // validates number of parameters
+            if (xy_param.Length < 2 || xy_param.Length > 3 )
+            {
+                Interpreter.AddError(string.Format("Point definition should have two or three parameters!"));
+            }
+
+            // validates color type (3rd parameter)
+            if (xy_param.Length == 3)
+            {
+                if (!Graphics.PointTypes.ContainsKey(xy_param[2]))
+                {
+                    Interpreter.AddError(string.Format("Point type [{0}] is not defined!", xy_param[2]));
+                }
+            }
+
 
             // builds coordinates
             Variable x;
@@ -260,11 +312,22 @@ namespace Elements
                 y = Graphics.GetVariable( xy_param[1] );
             };
 
+
             Graphics.NewVariable(pName, Variable.VarType.VAR_TYPE_OBJECT, CLASS_POINT);
-            Graphics.Points.Add(  
-                    pName,
-                    new Point( pName, x, y)
-                );
+            if (xy_param.Length == 2)   // invisible point
+            {
+                Graphics.Points.Add(
+                        pName,
+                        new Point(pName, x, y)
+                    );
+            }
+            else // visible point with type
+            {
+                Graphics.Points.Add(
+                        pName,
+                        new Point(pName, x, y, xy_param[2])
+                    );
+            }
 
         }
 
@@ -279,9 +342,9 @@ namespace Elements
         ///  <date>2018.10.05</date>
         /// </created>
         /// <param name="pName">line name</param>
-        /// <param name="parameters">line parameters: point names separated by comma</param>
+        /// <param name="pParameters">line parameters: point names separated by comma</param>
         /// <returns></returns>
-        private static void NewLine(string pName, string pParameters)
+        private static void NewLine(string pName, string pParameters )
         {
 
             Console.WriteLine(string.Format("Add Line: {0}, [{1}]", pName, pParameters));
@@ -289,17 +352,47 @@ namespace Elements
             // gets point
             string[] xy_param = pParameters.Split(',');
 
+            // validates number of parameters
+            if (xy_param.Length < 2 || xy_param.Length > 3)
+            {
+                Interpreter.AddError(string.Format("Straight line definition should have two or three parameters!"));
+            }
+
+            // validates color type (3rd parameter)
+            if (xy_param.Length == 3)
+            {
+                if (!Graphics.LineTypes.ContainsKey(xy_param[2]))
+                {
+                    Interpreter.AddError(string.Format("Line type [{0}] is not defined!", xy_param[2]));
+                }
+            }
+
+
             // builds coordinates
             // TODO: error validation for Add Lines and get Point
-            Elements.Graphics.Lines.Add(
+            Graphics.NewVariable(pName, Variable.VarType.VAR_TYPE_OBJECT, CLASS_LINE);
+            if (xy_param.Length == 2)
+            {
+                Elements.Graphics.Lines.Add(
                     pName,
                     new Line(
                         pName,
-                        Graphics.GetPoint( xy_param[0] ),
-                        Graphics.GetPoint( xy_param[1] )
+                        Graphics.GetPoint(xy_param[0]),
+                        Graphics.GetPoint(xy_param[1])
                     )
                 );
-            Graphics.NewVariable( pName, Variable.VarType.VAR_TYPE_OBJECT, CLASS_LINE );
+            }
+            else {
+                Elements.Graphics.Lines.Add(
+                    pName,
+                    new Line(
+                        pName,
+                        Graphics.GetPoint(xy_param[0]),
+                        Graphics.GetPoint(xy_param[1]),
+                        xy_param[2]
+                    )
+                );
+            }
 
         }
 
@@ -309,10 +402,10 @@ namespace Elements
         public static void Call(string pName, string pSource, string pFunction, string pParams) {
 
 
+            if (Interpreter.IsBreakpoint) { return; }
+
             // todo: correct and ERRORS
-
-            Console.WriteLine(string.Format("Function call: {0} = {1}.{2}", pName, pSource, pFunction));
-
+            Console.WriteLine(string.Format("Function call: {0} = {1}.{2} ( {3} )", pName, pSource, pFunction, pParams ));
 
             Variable sourceVar = Graphics.GetVariable( pSource );
             string[] param = pParams.Split(',');
@@ -329,14 +422,27 @@ namespace Elements
                     }
                     else
                     {
-                        realParams[i] = Graphics.GetVariable( p ).value;
+                        if (Graphics.Variables.ContainsKey(p))
+                        {
+                            if (Graphics.Variables[p].type == Variable.VarType.VAR_TYPE_SIMPLE)
+                            {
+                                realParams[i] = Graphics.GetVariable(p).value;
+                            }
+                            else {
+                                realParams[i] = p;
+                            }
+                        }
+                        else
+                        {
+                            // TODO Error
+                        }
                     }
                     i++;
                 }
 
                 // executes function
                 switch (sourceVar.value) {
-                    case "Point":
+                    case CLASS_POINT:
                         switch (pFunction.ToUpper()) {
                             case "LEFT":
                                 Elements.Graphics.AddPointOnSide(pName, pSource, Direction.DIR_LEFT, realParams[0]);
@@ -352,6 +458,14 @@ namespace Elements
                                 break;
                         }
                         break;
+                    case CLASS_LINE:
+                        switch (pFunction.ToUpper())
+                        {
+                            case "GETCROSSPOINT":
+                                Elements.Graphics.LineGetCrossPoint(pName, pSource, realParams);
+                                break;
+                        }
+                        break;
                 }
 
             }
@@ -360,6 +474,8 @@ namespace Elements
 
 
         public static void AddPointOnSide(string pName, string pSource, Graphics.Direction pDir, string pLength) {
+
+            if (Interpreter.IsBreakpoint) { return; }
 
             // gets current point
             Point source = Graphics.GetPoint( pSource );
@@ -397,6 +513,28 @@ namespace Elements
         }
 
 
+        /// <summary>
+        /// Calculates crosspoint of two straight lines
+        /// </summary>
+        /// <param name="pName"></param>
+        /// <param name="pSource"></param>
+        /// <param name="pParams"></param>
+        public static void LineGetCrossPoint(string pName, string pSource, string[] pParams)
+        {
+
+            // TODO: validates parametes
+
+            // gets current point
+            Line line1 = Graphics.GetLine(pSource);
+
+            // gets other line
+            Line line2 = Graphics.GetLine(pParams[0]);
+
+            // computes result coordinates
+            line1.GetCrossPoint(line2, pName );
+
+        }
+
 
         #endregion New objects
 
@@ -415,6 +553,10 @@ namespace Elements
         /// <returns></returns>
         public static string SetProperty(string pName, string pAttribute, string pValue)
         {
+
+            if (Interpreter.IsBreakpoint) { return ""; }
+
+
             string error = "";
 
             // todo: error validation
@@ -434,6 +576,12 @@ namespace Elements
                                 case "Y":
                                     Graphics.GetPoint( pName ).y = Int32.Parse(pValue);
                                     break;
+                                case "TYPE":
+                                    Graphics.GetPoint( pName ).type = pValue;
+                                    break;
+                                case "VISIBLE":
+                                    Graphics.GetPoint(pName).visible = ( pValue.ToUpper() == "FALSE" ? false : true ) ;
+                                    break;
                                 default:
                                     Interpreter.AddError(string.Format("Object [{0}] of calss [{1}] has no attribute [{2}]", pName, CLASS_POINT, pAttribute));
                                     break;
@@ -442,7 +590,18 @@ namespace Elements
                         }
                     case CLASS_LINE:
                         {
-                            Interpreter.AddError(string.Format("Object [{0}] of calss [{1}] has no attribute [{2}]", pName, CLASS_LINE, pAttribute));
+                            switch (pAttribute.ToUpper())
+                            {
+                                case "TYPE":
+                                    Graphics.GetLine(pName).type = pValue;
+                                    break;
+                                case "VISIBLE":
+                                    Graphics.GetLine(pName).visible = (pValue.ToUpper() == "FALSE" ? false : true);
+                                    break;
+                                default:
+                                    Interpreter.AddError(string.Format("Object [{0}] of calss [{1}] has no attribute [{2}]", pName, CLASS_LINE, pAttribute));
+                                    break;
+                            }
                             break;
                         }
                 }
@@ -465,6 +624,10 @@ namespace Elements
         /// <returns></returns>
         public static string GetProperty(string pName, string pAttribute)
         {
+
+            if (Interpreter.IsBreakpoint) { return ""; }
+
+
             string error = "";
 
             // 

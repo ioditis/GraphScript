@@ -70,8 +70,10 @@
   <ItemGroup>
     <Compile Include="Elements\Graphics.cs" />
     <Compile Include="Elements\Line.cs" />
+    <Compile Include="Elements\LineType.cs" />
     <Compile Include="Elements\Point.cs" />
     <Compile Include="Elements\IGraphics.cs" />
+    <Compile Include="Elements\PointType.cs" />
     <Compile Include="Elements\Varaible.cs" />
     <Compile Include="FitDex.g.cs">
       <AutoGen>True</AutoGen>
@@ -107,6 +109,12 @@
       <ProductName>.NET Framework 3.5 SP1</ProductName>
       <Install>false</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Samples\Script03">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <Content Include="Styles.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

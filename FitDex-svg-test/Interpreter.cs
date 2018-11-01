@@ -16,7 +16,7 @@ namespace FitDex_svg_test
         public static int LineCurrent { get { return curLine; } }
         public static void LineNext() {
             ++curLine;
-            Console.WriteLine( string.Format("Move to new line: {0}", curLine) );
+            //Console.WriteLine( string.Format("Move to new line: {0}", curLine) );
         }
         public static void LineReset() { curLine = 0; }
 
